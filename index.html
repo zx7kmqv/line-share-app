@@ -1,1 +1,251 @@
-index.html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>妻へLINE</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5aaZ44G444OeTElORSIsInNob3J0X25hbWUiOiLlpqbjgbjjg6vJTkUiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzA2Qzc1NSIsInRoZW1lX2NvbG9yIjoiIzA2Qzc1NSJ9">
+<style>
+  :root {
+    --line-green: #06C755;
+    --bg: #f5f6f7;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-sub: #767676;
+    --border: #e5e5e5;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+    padding-bottom: 100px;
+  }
+  h1 {
+    font-size: 17px;
+    text-align: center;
+    margin: 8px 0 20px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .section-label {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin: 20px 4px 8px;
+    font-weight: 600;
+  }
+  .templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .template-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .template-btn:active {
+    background: #eafaf0;
+    border-color: var(--line-green);
+  }
+  .template-btn.edit-mode {
+    padding-right: 8px;
+  }
+  .remove-x {
+    color: #ff3b30;
+    margin-left: 6px;
+    font-weight: bold;
+  }
+  .add-template-btn {
+    background: var(--card-bg);
+    border: 1px dashed #bbb;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--card-bg);
+    margin-top: 8px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--line-green);
+  }
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+  }
+  .send-btn {
+    width: 100%;
+    background: var(--line-green);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .send-btn:active { opacity: 0.85; }
+  .send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  .edit-toggle {
+    font-size: 13px;
+    color: var(--text-sub);
+    text-align: right;
+    display: block;
+    margin: 20px 4px -4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+  .clear-btn {
+    font-size: 13px;
+    color: var(--text-sub);
+    background: none;
+    border: none;
+    margin-top: 6px;
+    cursor: pointer;
+    padding: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>妻へLINE</h1>
+
+<div class="section-label">定型文</div>
+<div class="templates" id="templateList"></div>
+
+<button class="edit-toggle" id="editToggle">定型文を編集</button>
+
+<div class="section-label">メッセージ</div>
+<textarea id="messageBox" placeholder="ここに文章が入ります。自由に編集できます。"></textarea>
+<button class="clear-btn" id="clearBtn">クリア</button>
+
+<div class="footer">
+  <button class="send-btn" id="sendBtn">LINEで送る</button>
+</div>
+
+<script>
+  const STORAGE_KEY = 'line_share_templates_v1';
+  const defaultTemplates = [
+    '保育園に電話したよ',
+    'お迎え行けるよ',
+    'お迎え行けないので、お願いできる？',
+    '今から帰るね'
+  ];
+
+  let templates = loadTemplates();
+  let editMode = false;
+
+  function loadTemplates() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [...defaultTemplates];
+  }
+
+  function saveTemplates() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+    } catch (e) {}
+  }
+
+  function renderTemplates() {
+    const list = document.getElementById('templateList');
+    list.innerHTML = '';
+
+    templates.forEach((t, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'template-btn' + (editMode ? ' edit-mode' : '');
+      btn.textContent = t;
+
+      if (editMode) {
+        const x = document.createElement('span');
+        x.className = 'remove-x';
+        x.textContent = '✕';
+        btn.appendChild(x);
+        btn.onclick = () => {
+          templates.splice(i, 1);
+          saveTemplates();
+          renderTemplates();
+        };
+      } else {
+        btn.onclick = () => {
+          const box = document.getElementById('messageBox');
+          box.value = t;
+          box.focus();
+        };
+      }
+      list.appendChild(btn);
+    });
+
+    if (editMode) {
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-template-btn';
+      addBtn.textContent = '＋ 追加';
+      addBtn.onclick = () => {
+        const text = prompt('新しい定型文を入力してください');
+        if (text && text.trim()) {
+          templates.push(text.trim());
+          saveTemplates();
+          renderTemplates();
+        }
+      };
+      list.appendChild(addBtn);
+    }
+  }
+
+  document.getElementById('editToggle').onclick = () => {
+    editMode = !editMode;
+    document.getElementById('editToggle').textContent = editMode ? '完了' : '定型文を編集';
+    renderTemplates();
+  };
+
+  document.getElementById('clearBtn').onclick = () => {
+    document.getElementById('messageBox').value = '';
+  };
+
+  document.getElementById('sendBtn').onclick = () => {
+    const text = document.getElementById('messageBox').value.trim();
+    if (!text) {
+      alert('メッセージを入力してください');
+      return;
+    }
+    const encoded = encodeURIComponent(text);
+    // LINEの公式URLスキーム。トーク相手は開いた後に選択する。
+    const lineUrl = 'line://msg/text/' + encoded;
+    window.location.href = lineUrl;
+  };
+
+  renderTemplates();
+</script>
+
+</body>
+</html>
