@@ -94,12 +94,12 @@ Official Account Manager → **設定** → **アカウント設定** → 機能
 
 Cloudflare アカウント（無料）を作成しておく。
 
+> **iPad / スマホだけで進める場合は [deploy-browser.md](deploy-browser.md) を使う**（手順6〜8とリッチメニュー以外をブラウザで完結できる）。
+> 以下はPCのターミナルを使う場合。
+
 ```bash
 npm install
 npx wrangler login
-
-# 送信先IDの保存先を作成 → 表示された id を wrangler.toml に貼る
-npx wrangler kv namespace create LINE_KV
 
 # シークレットを登録（それぞれ値を聞かれる）
 npx wrangler secret put LINE_CHANNEL_SECRET

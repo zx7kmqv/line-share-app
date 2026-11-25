@@ -3,17 +3,16 @@ main = "src/index.ts"
 compatibility_date = "2026-11-01"
 
 # 送信先ID（家族グループ・自分）の保存先
-# `npx wrangler kv namespace create LINE_KV` で作成し、表示された id に置き換える
+# id を書かなくても、初回デプロイ時に wrangler が自動で作成し、以降は同じものを使う
 [[kv_namespaces]]
 binding = "LINE_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
 # 定時実行（cron は UTC。"0 22 * * *" = 日本時間 7:00）
 # src/features/*.ts の schedules に書いた cron と同じ文字列をここに並べる
 # [triggers]
 # crons = ["0 22 * * *"]
 
-# シークレット（コードに書かない）:
+# シークレット（コードに書かない）。Cloudflare 管理画面の「変数とシークレット」でも登録できる:
 #   npx wrangler secret put LINE_CHANNEL_SECRET
 #   npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN
 #   npx wrangler secret put API_TOKEN
