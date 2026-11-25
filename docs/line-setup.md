@@ -138,6 +138,19 @@ curl -X POST $LINE_API_URL/api/push \
 
 `scripts/push.sh` を使うと短く書ける：`./scripts/push.sh family "今日は燃えるゴミの日"`
 
+## 11. リッチメニューを登録する
+
+1:1トークの下に 📰ニュース / ⏰リマインド / 🍳献立 / ☰メニュー のボタンを出す。
+
+```bash
+LINE_CHANNEL_ACCESS_TOKEN=<手順5のトークン> node scripts/setup-richmenu.mjs
+```
+
+botとの1:1トークを開き直すと表示される（反映に少し時間がかかることがある）。
+グループにはリッチメニューが出ないので、グループでは `メニュー` と送る。
+
+機能の分け方・使い方は [features.md](features.md) を参照。
+
 ---
 
 ## 料金と通数の目安（無料プラン）

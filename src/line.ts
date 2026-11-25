@@ -3,9 +3,26 @@
 
 const API_BASE = "https://api.line.me/v2/bot";
 
-export type LineMessage =
-  | { type: "text"; text: string }
-  | { type: string; [key: string]: unknown };
+/** メッセージごとに表示名・アイコンを変える（機能ごとの見分けに使う） */
+export interface Sender {
+  name?: string; // 20文字まで
+  iconUrl?: string; // HTTPS の PNG/JPEG
+}
+
+export interface QuickReplyItem {
+  type: "action";
+  action:
+    | { type: "message"; label: string; text: string }
+    | { type: "postback"; label: string; data: string; displayText?: string };
+}
+
+export type LineMessage = {
+  type: string;
+  text?: string;
+  sender?: Sender;
+  quickReply?: { items: QuickReplyItem[] };
+  [key: string]: unknown;
+};
 
 export type LineSource =
   | { type: "user"; userId: string }
@@ -17,7 +34,20 @@ export interface LineEvent {
   replyToken?: string;
   source?: LineSource;
   message?: { type: string; text?: string };
+  postback?: { data: string };
   timestamp: number;
+}
+
+/** トークのID（push の宛先に使える） */
+export function sourceId(src: LineSource): string {
+  switch (src.type) {
+    case "user":
+      return src.userId;
+    case "group":
+      return src.groupId;
+    case "room":
+      return src.roomId;
+  }
 }
 
 /** x-line-signature を検証する（HMAC-SHA256 / Base64） */

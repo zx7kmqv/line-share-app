@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "test": "esbuild test/*.ts --bundle --platform=node --format=esm --outdir=.test-build --out-extension:.js=.test.js --log-level=warning && node --test .test-build/*.test.js"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261101.0",
