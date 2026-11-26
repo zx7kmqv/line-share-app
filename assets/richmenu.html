@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- リッチメニュー画像の元。scripts/render-richmenu.mjs で assets/richmenu.png（2500x843）に書き出す -->
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;width:2500px;height:843px;font-family:"IPAPGothic","Noto Color Emoji",sans-serif;background:#fff}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);height:100%}
+  .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;border-right:4px solid #e8e8e8}
+  .cell:last-child{border-right:none}
+  .emoji{font-size:220px;line-height:1}
+  .label{font-size:96px;font-weight:bold;color:#222}
+  .news{background:#eef6ff}.reminder{background:#fff6e5}.recipe{background:#eefaf0}.menu{background:#f4f4f4}
+</style></head><body><div class="grid">
+  <div class="cell news"><div class="emoji">📰</div><div class="label">ニュース</div></div>
+  <div class="cell reminder"><div class="emoji">⏰</div><div class="label">リマインド</div></div>
+  <div class="cell recipe"><div class="emoji">🍳</div><div class="label">献立</div></div>
+  <div class="cell menu"><div class="emoji">☰</div><div class="label">メニュー</div></div>
+</div></body></html>
