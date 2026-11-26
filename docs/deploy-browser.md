@@ -28,12 +28,21 @@
 
 ### ブランチについて
 
-コードは今 `claude/cool-brown-u2rm6a` ブランチにある。`main` にはまだ古いアプリしかないので、
-`main` からビルドすると失敗する（「wrangler.toml が見つからない」など）。
+本番の URL にデプロイされるのは `main`（Production branch）のコードだけ。
+ほかのブランチに push すると、プレビュー版が作られるだけになる。
 
-- **main にマージ済みなら**：そのままでOK
-- **まだなら**：Worker の **設定**（Settings）→ **ビルド**（Build）→ **ブランチ管理**（Branch control）で、
-  本番ブランチ（Production branch）を `claude/cool-brown-u2rm6a` に変えて、**再デプロイ**（Retry build）
+### 古いアプリ（HTMLだけ）がデプロイされてしまったとき
+
+`main` に新しいコードが入る前にインポートすると、古い静的サイトがデプロイされる。このとき次のような症状が出る。
+
+- URL を開くと `ok` ではなく古いページが表示される
+- 設定画面に「Variables cannot be added to a Worker that only has static assets」と表示され、シークレットを登録できない
+
+**直し方：** 新しいコードが入った `main` で、もう一度ビルドを走らせる。ビルドは `main` に push されたときだけ自動で動くので、
+`main` に何かコミットを入れれば、本番用のビルドとデプロイが実行される。
+Deployments タブで、一番上の行に緑の点と「Ready」が表示され、Active deployment が新しくなれば完了。
+
+> 青い棒の付いた行は `main` 以外のブランチから作られた **プレビュー版** で、本番の URL には反映されない。
 
 ビルドが成功すると、Worker の概要画面に `https://line-share-app.<あなたのサブドメイン>.workers.dev` の URL が表示される。
 Safari で開いて **`ok`** と表示されれば公開できている。
